@@ -74,7 +74,7 @@ function checkcin(){
 </head>
 
 <body>
-
+<a href="https://github.com/Freeways/permut"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
 <div class="wrapper">
 
 <div class="chrome">

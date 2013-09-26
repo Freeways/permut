@@ -1,7 +1,7 @@
 <?php 
   
 $db="yasser_cloud";   
-$connection = mysql_connect("127.0.0.1","yasser-freeways","LRw13UZZLiv1apv") or die ("Get the f****k out!"); 
+$connection = mysql_connect("host","user","password") or die ("Database Connection Problem"); 
 // test la connection 
 if ( ! $connection ) 
   die ("connection impossible"); 

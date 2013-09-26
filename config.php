@@ -1,6 +1,6 @@
 <?php 
 
-$db="yasser_cloud";   
+$db="DB Name";   
 $connection = mysql_connect("host","user","password") or die ("Database Connection Problem"); 
 // test la connection 
 if ( ! $connection ) 

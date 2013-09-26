@@ -296,7 +296,7 @@ sql($requete);
 <iframe src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Ffreewaysclub.org%2Fpermut%2F" scrolling="no" frameborder="0" style="height: 62px; width: 100%" allowTransparency="true"></iframe>
 </td>
 <td >
-Application développée par  <a href="https://www.facebook.com/NVimanis" target="_tab">Hosni Anis</a> 
+Application développée par  <a href="https://www.facebook.com/im6anis" target="_tab">Hosni Anis</a> 
 
 & <a href="https://www.facebook.com/im.funktastik" target="_tab">Rouissi Nidhal</a>. Maintenu à jour par <a href="http://tawataw.com" target="_tab">TuniLame</a>
 

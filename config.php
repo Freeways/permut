@@ -6,6 +6,6 @@ $connection = mysql_connect("host", "user", "password") or die("Database Connect
 if (!$connection)
 	die("connection impossible");
 // DB Connection
-mysql_select_db($db) or die("pas de connection");
+mysql_select_db($db) or die("Connection Problem");
 ?>
 

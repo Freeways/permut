@@ -1,6 +1,6 @@
 <?php
 
-$db = "db";
+$db = "cb";
 $connection = mysql_connect("host", "user", "password") or die("Database Connection Problem");
 // Test Connection
 if (!$connection)

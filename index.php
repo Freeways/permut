@@ -1,7 +1,81 @@
 <?php
-include_once("config.php");
-include("functions.php");
-include_once("stat.php");
+include_once ("config.php");
+include ("functions.php");
+include_once ("stat.php");
+
+/**
+ * ** Persona Login ***
+ */
+$body = $email = NULL;
+if (isset ( $_POST ['assertion'] )) {
+	$persona = new Persona ();
+	$result = $persona->verifyAssertion ( $_POST ['assertion'] );
+	
+	if ($result->status === 'okay') {
+		$body = '<p>Logged in as: ' . $result->email . ' <a href="javascript:navigator.id.logout()">Logout</a></p>';
+		// $body .= '<p><a href="javascript:navigator.id.logout()">Logout</a></p>';
+		$email = $result->email;
+	} else {
+		$body = "<p>Error: " . $result->reason . "</p>";
+	}
+	// $body .= "<p><a href=\"persona.php\">Back to login page</a></p>";
+} elseif (! empty ( $_GET ['logout'] )) {
+	$body = "<p>You have logged out.</p>";
+	header ( "location:http://localhost/permut/" );
+	// $body .= "<p><a href=\"persona.php\">Back to login page</a></p>";
+} else {
+	$body = "<p><a class=\"persona-button\" href=\"javascript:navigator.id.request()\"><span>Login with Persona</span></a></p>";
+}
+class Persona {
+	/**
+	 * Scheme, hostname and port
+	 */
+	protected $audience;
+	
+	/**
+	 * Constructs a new Persona (optionally specifying the audience)
+	 */
+	public function __construct($audience = NULL) {
+		$this->audience = $audience ?  : $this->guessAudience ();
+	}
+	
+	/**
+	 * Verify the validity of the assertion received from the user
+	 *
+	 * @param string $assertion
+	 *        	The assertion as received from the login dialog
+	 * @return object The response from the Persona online verifier
+	 */
+	public function verifyAssertion($assertion) {
+		$postdata = 'assertion=' . urlencode ( $assertion ) . '&audience=' . urlencode ( $this->audience );
+		
+		$ch = curl_init ();
+		curl_setopt ( $ch, CURLOPT_URL, "https://verifier.login.persona.org/verify" );
+		curl_setopt ( $ch, CURLOPT_POST, true );
+		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt ( $ch, CURLOPT_POSTFIELDS, $postdata );
+		curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, 2 );
+		$response = curl_exec ( $ch );
+		curl_close ( $ch );
+		
+		return json_decode ( $response );
+	}
+	
+	/**
+	 * Guesses the audience from the web server configuration
+	 */
+	protected function guessAudience() {
+		$audience = isset ( $_SERVER ['HTTPS'] ) && $_SERVER ['HTTPS'] === 'on' ? 'https://' : 'http://';
+		$audience .= $_SERVER ['SERVER_NAME'] . ':' . $_SERVER ['SERVER_PORT'];
+		return $audience;
+	}
+}
+
+/**
+ * ******************
+ */
+
 ?>
 <!DOCTYPE html>
 
@@ -9,9 +83,11 @@ include_once("stat.php");
 <!--[if IE 7 ]>    <html class="ie ie7 no-js" lang="en"> <![endif]-->
 <!--[if IE 8 ]>    <html class="ie ie8 no-js" lang="en"> <![endif]-->
 <!--[if IE 9 ]>    <html class="ie ie9 no-js" lang="en"> <![endif]-->
-<!--[if gt IE 9]><!--><html class="no-js" lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:og="http://ogp.me/ns#"
-      xmlns:fb="https://www.facebook.com/2008/fbml" ><!--<![endif]-->
+<!--[if gt IE 9]><!-->
+<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:og="http://ogp.me/ns#"
+	xmlns:fb="https://www.facebook.com/2008/fbml">
+<!--<![endif]-->
 <!-- the "no-js" class is for Modernizr. -->
 
 <!--[if lte IE 8]>
@@ -20,37 +96,40 @@ include_once("stat.php");
 
 <![endif]-->
 
-<head >
+<head>
 
-        <meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta property="fb:admins" content="100001610260648,100001420300757"/>
-        <meta property="fb:app_id" content="187783477900155"/>
-	<title>#Permutation - ISI 2013</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta property="fb:admins" content="100001610260648,100001420300757" />
+<meta property="fb:app_id" content="187783477900155" />
+<title>#Permutation - ISI 2013</title>
 
-<!--  begin facebook graphe  -->	
-<meta property="og:title" content="#Permutation - ISI 2013"/>
-    <meta property="og:url" content="http://www.freewaysclub.org/permut/"/>
-    <meta property="og:image" content="http://freewaysclub.org/permut/_/img/favicon.ico"/>
-    <meta property="og:description"
-          content="Application web pour les demandes de permutations a l'ISI 
-			(L'Institut Supérieur d'Informatique) "/>
-<!--  begin facebook graphe  -->	
+<!--  begin facebook graphe  -->
+<meta property="og:title" content="#Permutation - ISI 2013" />
+<meta property="og:url" content="http://www.freewaysclub.org/permut/" />
+<meta property="og:image"
+	content="http://freewaysclub.org/permut/_/img/favicon.ico" />
+<meta property="og:description"
+	content="Application web pour les demandes de permutations a l'ISI 
+			(L'Institut Supérieur d'Informatique) " />
+<!--  begin facebook graphe  -->
 
-	<link rel="image_src" href="http://freewaysclub.org/permut/_/img/favicon.ico" />
-	<meta name="author" content="Nidhal Rouissi, Anis Hosni">
-	<meta name="Copyleft" content="Freeways 2011. No Rights Reserved.">
+<link rel="image_src"
+	href="http://freewaysclub.org/permut/_/img/favicon.ico" />
+<meta name="author" content="Nidhal Rouissi, Anis Hosni">
+<meta name="Copyleft" content="Freeways 2011. No Rights Reserved.">
 
 
-	<link rel="shortcut icon" href="_/img/favicon.ico">
-		 
-	<link rel="stylesheet" href="_/css/reset.css">
-	<link rel="stylesheet" href="_/css/style.css">
+<link rel="shortcut icon" href="_/img/favicon.ico">
 
-        <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
-        <script src="_/js/jquery.smooth-scroll.js"></script>
-        <script src="_/js/jquery.easing.js"></script>
-        <script src="_/js/jquery.tools.min.js"></script>
+<link rel="stylesheet" href="_/css/reset.css">
+<link rel="stylesheet" href="_/css/style.css">
+<link rel="stylesheet" type="text/css" href="css/persona-buttons.css">
+
+<script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+<script src="_/js/jquery.smooth-scroll.js"></script>
+<script src="_/js/jquery.easing.js"></script>
+<script src="_/js/jquery.tools.min.js"></script>
 
 <script language="javascript">
 
@@ -74,249 +153,354 @@ function checkcin(){
 </head>
 
 <body>
-<a href="https://github.com/Freeways/permut"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
-<div class="wrapper">
+	<a href="https://github.com/Freeways/permut">
+		<img style="position: absolute; top: 0; left: 0; border: 0;"
+			src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"
+			alt="Fork me on GitHub">
+	</a>
 
-<div class="chrome">
-<img src="_/img/chrome.png" title="testé avec Google Chrome 13">
-</div>
+	<div class="wrapper">
 
-<div class="firefox">
-<img src="_/img/firefox.png" title="testé avec Mozilla Firefox 4">
-</div>
+		<div class="chrome">
+			<img src="_/img/chrome.png" title="testé avec Google Chrome 13">
+		</div>
 
-<div class="up">
-<img src="_/img/up.png" title="Haut de la page">
-</div>
+		<div class="firefox">
+			<img src="_/img/firefox.png" title="testé avec Mozilla Firefox 4">
+		</div>
 
-<div id="stat" align="right">
-  <r><?php    echo $donnees['visteurtot'];?></r>
- Visites - 
-   <r><?php echo $donnees['nbre_entrees'] ?> </r>
- Visiteurs connectés -
- <r><?php    echo $donnees['demandes'];?></r>
- Demandes   
+		<div class="up">
+			<img src="_/img/up.png" title="Haut de la page">
+		</div>
 
-</div>
+		<div id="stat" align="right" style="margin-top: 5px;">
+
+			
+
+			<r><?php    echo $donnees['visteurtot'];?></r>
+			Visites -
+			<r><?php echo $donnees['nbre_entrees'] ?> </r>
+			Visiteurs connectés -
+			<r><?php    echo $donnees['demandes'];?></r>
+			Demandes
+			
+			<div style="margin-top: -5px;">
+				<form id="login-form" method="POST">
+					<input id="assertion-field" type="hidden" name="assertion" value="">
+				</form>
+    <?= $body?>
+    <script src="https://login.persona.org/include.js"></script>
+				<script>
+    navigator.id.watch({
+        loggedInUser: <?= $email ? "'$email'" : 'null' ?>,
+        onlogin: function (assertion) {
+            var assertion_field = document.getElementById("assertion-field");
+            assertion_field.value = assertion;
+            var login_form = document.getElementById("login-form");
+            login_form.submit();
+        },
+        onlogout: function () {
+            window.location = '?logout=1';
+        }
+    });
+    </script>
+			</div>
+		</div>
 
 
 
-<header id="header">
-<center>
-<div id="r">
-<p><h1 id="logo">#Permutation</h1></p>
-<div id="slogan">Trouver un(e) camarade pour faire une permutation</div>
-</div>
-<img id="s1" src="_/img/stick.png">
-<img id="s2" src="_/img/stick.png">
-<center>
-</header>
+		<header id="header">
+			<center>
+				<div id="r">
+					<p>
+					
+					
+					<h1 id="logo">#Permutation</h1>
+					</p>
+					<div id="slogan">Trouver un(e) camarade pour faire une permutation</div>
+				</div>
+				<img id="s1" src="_/img/stick.png">
+				<img id="s2" src="_/img/stick.png">
+				<center>
+		
+		</header>
 
-<section>
-<center>
-<input id="avis" href="#coms" type="button" value="Votre avis">
-<input id="rech" type="button" value="Rechercher">
-<input id="inser" type="button" value="Insérer une demande de permutation">
-<br><br>
-</center>
+		<section>
+			<center>
+				<input id="avis" href="#coms" type="button" value="Votre avis">
+				<input id="rech" type="button" value="Rechercher">
+				<input id="inser" type="button"
+					value="Insérer une demande de permutation">
+				<br>
+				<br>
+			</center>
 
-<div class="recherche">
-<b>Affiner votre recherche :</b><br><br>
-<center><form id="form2">
+			<div class="recherche">
+				<b>Affiner votre recherche :</b>
+				<br>
+				<br>
+				<center>
+					<form id="form2">
 
-Nom : <input type="text" name="nom" > -
-Prénom : <input type="text" name="prenom" > -
-Inscrit(e) dans : - <input type="text" name="de" >
-Vers : <input type="text" name="vers" >
-</form></center>
-</div>
+						Nom :
+						<input type="text" name="nom">
+						- Prénom :
+						<input type="text" name="prenom">
+						- Inscrit(e) dans : -
+						<input type="text" name="de">
+						Vers :
+						<input type="text" name="vers">
+					</form>
+				</center>
+			</div>
 
-<div class="insertion">
-<b>Veuillez remplir les champs suivants :</b><br><br>
-<center>
-<form id="form1">
-<p><label>Nom : </label><input type="text" name="nom"></p>
-<p><label>Prénom : </label><input type="text" name="prenom"></p>
-<p><label>CIN <r></r>: </label><input type="text" name="cin" id="cin" onkeyup="checkcin();"></p>
-<p>
-<label>Inscrit(e) dans <r>*</r> : </label>
-<datalist id="sources">
-    <select name="source">
-        <option value="L1SIL1">L1SIL1</option>
-	<option value="L1SIL2">L1SIL2</option>
-	<option value="L1SIL3">L1SIL3</option>
-	<option value="L1SIL4">L1SIL4</option>
-	<option value="L1SIL5">L1SIL5</option>
-        <option value="L2SIL1">L2SIL1</option>
-	<option value="L2SIL2">L2SIL2</option>
-	<option value="L2SIL3">L2SIL3</option>
-	<option value="L2SIL4">L2SIL4</option>
-	<option value="L2SIL5">L2SIL5</option>
-        <option value="L3SIL1">L3SIL1</option>
-	<option value="L3SIL2">L3SIL2</option>
-	<option value="L3SIL3">L3SIL3</option>
-	<option value="L3SIL4">L3SIL4</option>
-	<option value="L3SIL5">L3SIL5</option>
-        <option value="L1ARS1">L1ARS1</option>
-	<option value="L1ARS2">L1ARS2</option>
-	<option value="L1ARS3">L1ARS3</option>
-	<option value="L1ARS4">L1ARS4</option>
-	<option value="L1ARS5">L1ARS5</option>
-        <option value="L2ARS1">L2ARS1</option>
-	<option value="L2ARS2">L2ARS2</option>
-	<option value="L2ARS3">L2ARS3</option>
-	<option value="L2ARS4">L2ARS4</option>
-	<option value="L2ARS5">L2ARS5</option>
-        <option value="L3ARS1">L3ARS1</option>
-	<option value="L3ARS2">L3ARS2</option>
-	<option value="L3ARS3">L3ARS3</option>
-	<option value="L3ARS4">L3ARS4</option>
-	<option value="L3ARS5">L3ARS5</option>
-        <option value="L1SE1">L1SE1</option>
-	<option value="L1SE2">L1SE2</option>
-	<option value="L1SE3">L1SE3</option>
-	<option value="L1SE4">L1SE4</option>
-	<option value="L1SE5">L1SE5</option>
-        <option value="L2SE1">L2SE1</option>
-	<option value="L2SE2">L2SE2</option>
-	<option value="L2SE3">L2SE3</option>
-	<option value="L2SE4">L2SE4</option>
-	<option value="L2SE5">L2SE5</option>
-        <option value="L3SE1">L3SE1</option>
-	<option value="L3SE2">L3SE2</option>
-	<option value="L3SE3">L3SE3</option>
-	<option value="L3SE4">L3SE4</option>
-	<option value="L3SE5">L3SE5</option>
-    </select>
-</datalist>
-<input type="text" id="source" name="de" list="sources">
-</p>
-<p>
-<label>Vers <r>*</r> : </label> 
-<datalist id="sources">
-    <select name="source">
-        <option value="L1SIL1">L1SIL1</option>
-	<option value="L1SIL2">L1SIL2</option>
-	<option value="L1SIL3">L1SIL3</option>
-	<option value="L1SIL4">L1SIL4</option>
-	<option value="L1SIL5">L1SIL5</option>
-        <option value="L2SIL1">L2SIL1</option>
-	<option value="L2SIL2">L2SIL2</option>
-	<option value="L2SIL3">L2SIL3</option>
-	<option value="L2SIL4">L2SIL4</option>
-	<option value="L2SIL5">L2SIL5</option>
-        <option value="L3SIL1">L3SIL1</option>
-	<option value="L3SIL2">L3SIL2</option>
-	<option value="L3SIL3">L3SIL3</option>
-	<option value="L3SIL4">L3SIL4</option>
-	<option value="L3SIL5">L3SIL5</option>
-        <option value="L1ARS1">L1ARS1</option>
-	<option value="L1ARS2">L1ARS2</option>
-	<option value="L1ARS3">L1ARS3</option>
-	<option value="L1ARS4">L1ARS4</option>
-	<option value="L1ARS5">L1ARS5</option>
-        <option value="L2ARS1">L2ARS1</option>
-	<option value="L2ARS2">L2ARS2</option>
-	<option value="L2ARS3">L2ARS3</option>
-	<option value="L2ARS4">L2ARS4</option>
-	<option value="L2ARS5">L2ARS5</option>
-        <option value="L3ARS1">L3ARS1</option>
-	<option value="L3ARS2">L3ARS2</option>
-	<option value="L3ARS3">L3ARS3</option>
-	<option value="L3ARS4">L3ARS4</option>
-	<option value="L3ARS5">L3ARS5</option>
-        <option value="L1SE1">L1SE1</option>
-	<option value="L1SE2">L1SE2</option>
-	<option value="L1SE3">L1SE3</option>
-	<option value="L1SE4">L1SE4</option>
-	<option value="L1SE5">L1SE5</option>
-        <option value="L2SE1">L2SE1</option>
-	<option value="L2SE2">L2SE2</option>
-	<option value="L2SE3">L2SE3</option>
-	<option value="L2SE4">L2SE4</option>
-	<option value="L2SE5">L2SE5</option>
-        <option value="L3SE1">L3SE1</option>
-	<option value="L3SE2">L3SE2</option>
-	<option value="L3SE3">L3SE3</option>
-	<option value="L3SE4">L3SE4</option>
-	<option value="L3SE5">L3SE5</option>
-    </select>
-</datalist>
-<input type="text" id="source" name="vers" list="sources">
-</p>
-<p><label>Contact <r>**</r> : </label> <input type="text" name="contact"></p>
-<p id="accepte"> <input type="checkbox" name="lic" id="lic"> En ajoutant cette demande, j'accepte que mes informations seront publiées sur cette application.</p>
- <span><r>*</r>Sous la forme L[1-3][SIL|ARS|SE][01-02-03] Exp : L3SIL02.</span><br>
- <span><r>**</r>Numéro de téléphone, email ou lien vers profile facebook.</span><br> 
-<div id="err"> </div>
-<input id="verif" type="button" value="Chance ?" >
-<input id="ajout" type="button" value="Ajouter demande" >
-</form></center>
-</div>
+			<div class="insertion">
+				<b>Veuillez remplir les champs suivants :</b>
+				<br>
+				<br>
+				<center>
+					<form id="form1">
+						<p>
+							<label>Nom : </label>
+							<input type="text" name="nom">
+						</p>
+						<p>
+							<label>Prénom : </label>
+							<input type="text" name="prenom">
+						</p>
+						<p>
+							<label>
+								CIN
+								<r></r>
+								:
+							</label>
+							<input type="text" name="cin" id="cin" onkeyup="checkcin();">
+						</p>
+						<p>
+							<label>
+								Inscrit(e) dans
+								<r>*</r>
+								:
+							</label>
+							<datalist id="sources">
+								<select name="source">
+									<option value="L1SIL1">L1SIL1</option>
+									<option value="L1SIL2">L1SIL2</option>
+									<option value="L1SIL3">L1SIL3</option>
+									<option value="L1SIL4">L1SIL4</option>
+									<option value="L1SIL5">L1SIL5</option>
+									<option value="L2SIL1">L2SIL1</option>
+									<option value="L2SIL2">L2SIL2</option>
+									<option value="L2SIL3">L2SIL3</option>
+									<option value="L2SIL4">L2SIL4</option>
+									<option value="L2SIL5">L2SIL5</option>
+									<option value="L3SIL1">L3SIL1</option>
+									<option value="L3SIL2">L3SIL2</option>
+									<option value="L3SIL3">L3SIL3</option>
+									<option value="L3SIL4">L3SIL4</option>
+									<option value="L3SIL5">L3SIL5</option>
+									<option value="L1ARS1">L1ARS1</option>
+									<option value="L1ARS2">L1ARS2</option>
+									<option value="L1ARS3">L1ARS3</option>
+									<option value="L1ARS4">L1ARS4</option>
+									<option value="L1ARS5">L1ARS5</option>
+									<option value="L2ARS1">L2ARS1</option>
+									<option value="L2ARS2">L2ARS2</option>
+									<option value="L2ARS3">L2ARS3</option>
+									<option value="L2ARS4">L2ARS4</option>
+									<option value="L2ARS5">L2ARS5</option>
+									<option value="L3ARS1">L3ARS1</option>
+									<option value="L3ARS2">L3ARS2</option>
+									<option value="L3ARS3">L3ARS3</option>
+									<option value="L3ARS4">L3ARS4</option>
+									<option value="L3ARS5">L3ARS5</option>
+									<option value="L1SE1">L1SE1</option>
+									<option value="L1SE2">L1SE2</option>
+									<option value="L1SE3">L1SE3</option>
+									<option value="L1SE4">L1SE4</option>
+									<option value="L1SE5">L1SE5</option>
+									<option value="L2SE1">L2SE1</option>
+									<option value="L2SE2">L2SE2</option>
+									<option value="L2SE3">L2SE3</option>
+									<option value="L2SE4">L2SE4</option>
+									<option value="L2SE5">L2SE5</option>
+									<option value="L3SE1">L3SE1</option>
+									<option value="L3SE2">L3SE2</option>
+									<option value="L3SE3">L3SE3</option>
+									<option value="L3SE4">L3SE4</option>
+									<option value="L3SE5">L3SE5</option>
+								</select>
+							</datalist>
+							<input type="text" id="source" name="de" list="sources">
+						</p>
+						<p>
+							<label>
+								Vers
+								<r>*</r>
+								:
+							</label>
+							<datalist id="sources">
+								<select name="source">
+									<option value="L1SIL1">L1SIL1</option>
+									<option value="L1SIL2">L1SIL2</option>
+									<option value="L1SIL3">L1SIL3</option>
+									<option value="L1SIL4">L1SIL4</option>
+									<option value="L1SIL5">L1SIL5</option>
+									<option value="L2SIL1">L2SIL1</option>
+									<option value="L2SIL2">L2SIL2</option>
+									<option value="L2SIL3">L2SIL3</option>
+									<option value="L2SIL4">L2SIL4</option>
+									<option value="L2SIL5">L2SIL5</option>
+									<option value="L3SIL1">L3SIL1</option>
+									<option value="L3SIL2">L3SIL2</option>
+									<option value="L3SIL3">L3SIL3</option>
+									<option value="L3SIL4">L3SIL4</option>
+									<option value="L3SIL5">L3SIL5</option>
+									<option value="L1ARS1">L1ARS1</option>
+									<option value="L1ARS2">L1ARS2</option>
+									<option value="L1ARS3">L1ARS3</option>
+									<option value="L1ARS4">L1ARS4</option>
+									<option value="L1ARS5">L1ARS5</option>
+									<option value="L2ARS1">L2ARS1</option>
+									<option value="L2ARS2">L2ARS2</option>
+									<option value="L2ARS3">L2ARS3</option>
+									<option value="L2ARS4">L2ARS4</option>
+									<option value="L2ARS5">L2ARS5</option>
+									<option value="L3ARS1">L3ARS1</option>
+									<option value="L3ARS2">L3ARS2</option>
+									<option value="L3ARS3">L3ARS3</option>
+									<option value="L3ARS4">L3ARS4</option>
+									<option value="L3ARS5">L3ARS5</option>
+									<option value="L1SE1">L1SE1</option>
+									<option value="L1SE2">L1SE2</option>
+									<option value="L1SE3">L1SE3</option>
+									<option value="L1SE4">L1SE4</option>
+									<option value="L1SE5">L1SE5</option>
+									<option value="L2SE1">L2SE1</option>
+									<option value="L2SE2">L2SE2</option>
+									<option value="L2SE3">L2SE3</option>
+									<option value="L2SE4">L2SE4</option>
+									<option value="L2SE5">L2SE5</option>
+									<option value="L3SE1">L3SE1</option>
+									<option value="L3SE2">L3SE2</option>
+									<option value="L3SE3">L3SE3</option>
+									<option value="L3SE4">L3SE4</option>
+									<option value="L3SE5">L3SE5</option>
+								</select>
+							</datalist>
+							<input type="text" id="source" name="vers" list="sources">
+						</p>
+						<p>
+							<label>
+								Contact
+								<r>**</r>
+								:
+							</label>
+							<input type="text" name="contact">
+						</p>
+						<p id="accepte">
+							<input type="checkbox" name="lic" id="lic">
+							En ajoutant cette demande, j'accepte que mes informations seront
+							publiées sur cette application.
+						</p>
+						<span>
+							<r>*</r>
+							Sous la forme L[1-3][SIL|ARS|SE][01-02-03] Exp : L3SIL02.
+						</span>
+						<br>
+						<span>
+							<r>**</r>
+							Numéro de téléphone, email ou lien vers profile facebook.
+						</span>
+						<br>
+						<div id="err"></div>
+						<input id="verif" type="button" value="Chance ?">
+						<input id="ajout" type="button" value="Ajouter demande">
+					</form>
+				</center>
+			</div>
 
-<table name="result" id="result" cellspacing="10">
-<tbody>
-	<tr class="th">
-		<th class="nom">Nom</th>
-		<th class="prenom">Prénom</th>
-		<th class="de">Inscrit(e) dans</th>
-		<th class="vers">Vers</th>
-		<th class="contact">Contact</th>
-	</tr>
+			<table name="result" id="result" cellspacing="10">
+				<tbody>
+					<tr class="th">
+						<th class="nom">Nom</th>
+						<th class="prenom">Prénom</th>
+						<th class="de">Inscrit(e) dans</th>
+						<th class="vers">Vers</th>
+						<th class="contact">Contact</th>
+					</tr>
 <?php
-$requete="SELECT * from etudiant"; // requête 
-sql($requete);
+$requete = "SELECT * from etudiant"; // requête
+sql ( $requete );
 ?>
-</tbody></table></div>
-<br>
-</section>
+</tbody>
+			</table>
+	
+	</div>
+	<br>
+	</section>
 
-<section>
-<center>
-<fieldset id="coms">
-<legend> Votre avis sur notre application </legend>
-<div id="fb-root"></div>
-<script>(function(d){
+	<section>
+		<center>
+			<fieldset id="coms">
+				<legend> Votre avis sur notre application </legend>
+				<div id="fb-root"></div>
+				<script>(function(d){
   var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
   js = d.createElement('script'); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/fr_FR/all.js#xfbml=1";
   d.getElementsByTagName('head')[0].appendChild(js);
 }(document));</script>
-<fb:comments id="fbcoms" href="http://www.freewaysclub.org/permut/index.php" num_posts="10" width="900"></fb:comments>
-</fieldset>
-</center>
-</section>
+				<fb:comments id="fbcoms"
+					href="http://www.freewaysclub.org/permut/index.php" num_posts="10"
+					width="900"></fb:comments>
+			</fieldset>
+		</center>
+	</section>
 
-<footer>
+	<footer>
 
-<table style="height: 62px; width:100%" border="0">
-<tr>
+		<table style="height: 62px; width: 100%" border="0">
+			<tr>
 
-<td>
-<iframe src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Ffreewaysclub.org%2Fpermut%2F" scrolling="no" frameborder="0" style="height: 62px; width: 100%" allowTransparency="true"></iframe>
-</td>
-<td >
-Application développée par  <a href="https://www.facebook.com/im6anis" target="_tab">Hosni Anis</a> 
+				<td>
+					<iframe
+						src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Ffreewaysclub.org%2Fpermut%2F"
+						scrolling="no" frameborder="0" style="height: 62px; width: 100%"
+						allowTransparency="true"></iframe>
+				</td>
+				<td>
+					Application développée par
+					<a href="https://www.facebook.com/im6anis" target="_tab">Hosni Anis</a>
 
-& <a href="https://www.facebook.com/im.funktastik" target="_tab">Rouissi Nidhal</a>. Maintenu à jour par <a href="http://tawataw.com" target="_tab">TuniLame</a>
+					&
+					<a href="https://www.facebook.com/im.funktastik" target="_tab">Rouissi
+						Nidhal</a>
+					. Maintenu à jour par
+					<a href="http://tawataw.com" target="_tab">TuniLame</a>
 
-</td>
-</tr>
-</table>
+				</td>
+			</tr>
+		</table>
 
-<center> 
-<a href="http://www.freewaysclub.org/" target="_tab">Freeways</a>  2013 
-<p>
-<a href="http://creativecommons.org/"><img src="http://www.freewaysclub.org/permut/_/img/icon_cc.gif"></a>
-<a href="http://www.w3.org/"><img src="http://www.w3.org/html/logo/downloads/HTML5_Logo_32.png"></a>
-</p>
-</center>
+		<center>
+			<a href="http://www.freewaysclub.org/" target="_tab">Freeways</a>
+			2013
+			<p>
+				<a href="http://creativecommons.org/">
+					<img src="http://www.freewaysclub.org/permut/_/img/icon_cc.gif">
+				</a>
+				<a href="http://www.w3.org/">
+					<img src="http://www.w3.org/html/logo/downloads/HTML5_Logo_32.png">
+				</a>
+			</p>
+		</center>
 
-</footer>
+	</footer>
 
-</div>
+	</div>
 
-<script>
+	<script>
 $(function() {
                 $('.chrome img, .firefox img').tooltip({
 		 

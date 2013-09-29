@@ -1,6 +1,6 @@
 <?php
 include_once ("config.php");
-include ("functions.php");
+include_once ("functions.php");
 include_once ("stat.php");
 
 /**
@@ -12,9 +12,12 @@ if (isset ( $_POST ['assertion'] )) {
 	$result = $persona->verifyAssertion ( $_POST ['assertion'] );
 	
 	if ($result->status === 'okay') {
-		$body = '<p>Logged in as: ' . $result->email . ' <a href="javascript:navigator.id.logout()">Logout</a></p>';
-		// $body .= '<p><a href="javascript:navigator.id.logout()">Logout</a></p>';
 		$email = $result->email;
+		$body = '<div style="margin-top:-20px;"><p><span style="style:block;"> <img src="' . get_gravatar ( $email, 25 ) . '" style="margin:10px 2px -5px 5px;"></span><span style="style:inline-block;margin:">' . $result->email . ' <a href="javascript:navigator.id.logout()">Logout</a></p></div></span>';
+		if($email=="yachironi@hotmail.com"){
+			header('location:admin/index.php');
+		}
+		// $body .= '<p><a href="javascript:navigator.id.logout()">Logout</a></p>';
 	} else {
 		$body = "<p>Error: " . $result->reason . "</p>";
 	}
@@ -24,7 +27,7 @@ if (isset ( $_POST ['assertion'] )) {
 	header ( "location:http://localhost/permut/" );
 	// $body .= "<p><a href=\"persona.php\">Back to login page</a></p>";
 } else {
-	$body = "<p><a class=\"persona-button\" href=\"javascript:navigator.id.request()\"><span>Login with Persona</span></a></p>";
+	$body = "<p><a class=\"persona-button\" href=\"javascript:navigator.id.request()\"><span>Connexion</span></a></p>";
 }
 class Persona {
 	/**
@@ -175,7 +178,7 @@ function checkcin(){
 
 		<div id="stat" align="right" style="margin-top: 5px;">
 
-			
+
 
 			<r><?php    echo $donnees['visteurtot'];?></r>
 			Visites -
@@ -183,12 +186,12 @@ function checkcin(){
 			Visiteurs connectés -
 			<r><?php    echo $donnees['demandes'];?></r>
 			Demandes
-			
-			<div style="margin-top: -5px;">
+
+			<div>
 				<form id="login-form" method="POST">
 					<input id="assertion-field" type="hidden" name="assertion" value="">
 				</form>
-    <?= $body?>
+      <?= $body?> 
     <script src="https://login.persona.org/include.js"></script>
 				<script>
     navigator.id.watch({

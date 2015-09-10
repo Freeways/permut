@@ -105,10 +105,10 @@ class Persona {
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta property="fb:admins" content="100001610260648,100001420300757" />
 <meta property="fb:app_id" content="187783477900155" />
-<title>#Permutation - ISI 2013</title>
+<title>#Permutation - ISI 2015</title>
 
 <!--  begin facebook graphe  -->
-<meta property="og:title" content="#Permutation - ISI 2013" />
+<meta property="og:title" content="#Permutation - ISI 2015" />
 <meta property="og:url" content="http://www.freewaysclub.org/permut/" />
 <meta property="og:image"
 	content="http://freewaysclub.org/permut/_/img/favicon.ico" />
@@ -120,7 +120,7 @@ class Persona {
 <link rel="image_src"
 	href="http://freewaysclub.org/permut/_/img/favicon.ico" />
 <meta name="author" content="Nidhal Rouissi, Anis Hosni">
-<meta name="Copyleft" content="Freeways 2011. No Rights Reserved.">
+<meta name="Copyleft" content="Freeways 2015. No Rights Reserved.">
 
 
 <link rel="shortcut icon" href="_/img/favicon.ico">
@@ -169,7 +169,7 @@ function checkcin(){
 		</div>
 
 		<div class="firefox">
-			<img src="_/img/firefox.png" title="testé avec Mozilla Firefox 4">
+			<img src="_/img/firefox.png" title="testé avec Mozilla Firefox 40">
 		</div>
 
 		<div class="up">
@@ -438,7 +438,7 @@ function checkcin(){
 						</p>
 						<span>
 							<r>*</r>
-							Sous la forme L[1-3][SIL|ARS|SE][01-02-03] Exp : L3SIL02.
+							Sous la forme [1-3][SIL|ARS|SE][1-2-3] Exp : 3SIL2.
 						</span>
 						<br>
 						<span>
@@ -510,7 +510,7 @@ sql ( $requete );
 					<a href="https://www.facebook.com/im.funktastik" target="_tab">Rouissi
 						Nidhal</a>
 					. Maintenu à jour par
-					<a href="http://tawataw.com" target="_tab">TuniLame</a>
+					<a href="https://www.facebook.com/sb2h0" target="_tab">Ben Hadj Hassin Salim</a>
 
 				</td>
 			</tr>
@@ -518,7 +518,7 @@ sql ( $requete );
 
 		<center>
 			<a href="http://www.freewaysclub.org/" target="_tab">Freeways</a>
-			2013
+			2015
 			<p>
 				<a href="http://creativecommons.org/">
 					<img src="http://www.freewaysclub.org/permut/_/img/icon_cc.gif">

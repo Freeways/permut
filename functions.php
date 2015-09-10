@@ -55,4 +55,23 @@ function get_gravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts
 	return $url;
 }
 
+function check_class_correspondency($from, $to){
+
+	$from_numbers = array();
+	preg_match_all('/([0-9]+)/', $from, $from_numbers);
+	$from_level = $from_numbers[0][0];
+	$from_groupe = $from_numbers[0][1];
+	$from_specialty = array();
+	preg_match('/([A-Z]+)/', $from, $from_specialty);
+
+	$to_numbers = array();
+	preg_match_all('/([0-9]+)/', $to, $to_numbers);
+	$to_level = $to_numbers[0][0];
+	$to_groupe = $to_numbers[0][1];
+	$to_specialty = array();
+	preg_match('/([A-Z]+)/', $to, $to_specialty);
+
+	return (($from_level == $to_level) && ($from_specialty[0] == $to_specialty[0]) && ($from_groupe != $to_groupe));
+}
+
 ?>

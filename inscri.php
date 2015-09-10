@@ -14,8 +14,7 @@ if (isset($_POST['act'])) $act=sec($_POST['act']); else $act="0";
 
 
 
-if (($nom!="") &&($prenom!="")&&($from!="")&&($to!="") && ($cin!="") && ($contact!="")&& (strlen($cin)==8 ) && (is_numeric($cin)) )
-{
+if (($nom!="") &&($prenom!="")&&($from!="")&&($to!="") && ($cin!="") && ($contact!="")&& (strlen($cin)==8 ) && (is_numeric($cin)) && check_class_correspondency($from, $to)){
 
 
 if ($act==1) {include_once("filtre.php"); exit;}

@@ -2,84 +2,8 @@
 include_once ("config.php");
 include_once ("functions.php");
 include_once ("stat.php");
-
-/**
- * ** Persona Login ***
- */
-$body = $email = NULL;
-if (isset ( $_POST ['assertion'] )) {
-	$persona = new Persona ();
-	$result = $persona->verifyAssertion ( $_POST ['assertion'] );
-	
-	if ($result->status === 'okay') {
-		$email = $result->email;
-		$body = '<div style="margin-top:-20px;"><p><span style="style:block;"> <img src="' . get_gravatar ( $email, 25 ) . '" style="margin:10px 2px -5px 5px;"></span><span style="style:inline-block;margin:">' . $result->email . ' <a href="javascript:navigator.id.logout()">Logout</a></p></div></span>';
-		if($email=="yachironi@hotmail.com"){
-			header('location:admin/index.php');
-		}
-		// $body .= '<p><a href="javascript:navigator.id.logout()">Logout</a></p>';
-	} else {
-		$body = "<p>Error: " . $result->reason . "</p>";
-	}
-	// $body .= "<p><a href=\"persona.php\">Back to login page</a></p>";
-} elseif (! empty ( $_GET ['logout'] )) {
-	$body = "<p>You have logged out.</p>";
-	header ( "location:http://localhost/permut/" );
-	// $body .= "<p><a href=\"persona.php\">Back to login page</a></p>";
-} else {
-	$body = "<p><a class=\"persona-button\" href=\"javascript:navigator.id.request()\"><span>Connexion</span></a></p>";
-}
-class Persona {
-	/**
-	 * Scheme, hostname and port
-	 */
-	protected $audience;
-	
-	/**
-	 * Constructs a new Persona (optionally specifying the audience)
-	 */
-	public function __construct($audience = NULL) {
-		$this->audience = $audience ?  : $this->guessAudience ();
-	}
-	
-	/**
-	 * Verify the validity of the assertion received from the user
-	 *
-	 * @param string $assertion
-	 *        	The assertion as received from the login dialog
-	 * @return object The response from the Persona online verifier
-	 */
-	public function verifyAssertion($assertion) {
-		$postdata = 'assertion=' . urlencode ( $assertion ) . '&audience=' . urlencode ( $this->audience );
-		
-		$ch = curl_init ();
-		curl_setopt ( $ch, CURLOPT_URL, "https://verifier.login.persona.org/verify" );
-		curl_setopt ( $ch, CURLOPT_POST, true );
-		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt ( $ch, CURLOPT_POSTFIELDS, $postdata );
-		curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, true );
-		curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, 2 );
-		$response = curl_exec ( $ch );
-		curl_close ( $ch );
-		
-		return json_decode ( $response );
-	}
-	
-	/**
-	 * Guesses the audience from the web server configuration
-	 */
-	protected function guessAudience() {
-		$audience = isset ( $_SERVER ['HTTPS'] ) && $_SERVER ['HTTPS'] === 'on' ? 'https://' : 'http://';
-		$audience .= $_SERVER ['SERVER_NAME'] . ':' . $_SERVER ['SERVER_PORT'];
-		return $audience;
-	}
-}
-
-/**
- * ******************
- */
-
 ?>
+
 <!DOCTYPE html>
 
 <!--[if lt IE 7 ]> <html class="ie ie6 no-js" lang="en"> <![endif]-->
@@ -87,6 +11,7 @@ class Persona {
 <!--[if IE 8 ]>    <html class="ie ie8 no-js" lang="en"> <![endif]-->
 <!--[if IE 9 ]>    <html class="ie ie9 no-js" lang="en"> <![endif]-->
 <!--[if gt IE 9]><!-->
+
 <html class="no-js" lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:og="http://ogp.me/ns#"
 	xmlns:fb="https://www.facebook.com/2008/fbml">
@@ -105,34 +30,31 @@ class Persona {
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta property="fb:admins" content="100001610260648,100001420300757" />
 <meta property="fb:app_id" content="187783477900155" />
+
 <title>#Permutation - ISI 2015</title>
 
 <!--  begin facebook graphe  -->
 <meta property="og:title" content="#Permutation - ISI 2015" />
-<meta property="og:url" content="http://www.freewaysclub.org/permut/" />
+<meta property="og:url" content="http://www.freeways.tn/Permut-ISI/" />
 <meta property="og:image"
-	content="http://freewaysclub.org/permut/_/img/favicon.ico" />
+	content="resources/img/favicon.ico" />
 <meta property="og:description"
 	content="Application web pour les demandes de permutations a l'ISI 
 			(L'Institut Supérieur d'Informatique) " />
-<!--  begin facebook graphe  -->
 
-<link rel="image_src"
-	href="http://freewaysclub.org/permut/_/img/favicon.ico" />
+<!--  begin facebook graphe  -->
+<link rel="image_src" href="resources/img/favicon.ico" />
 <meta name="author" content="Nidhal Rouissi, Anis Hosni">
 <meta name="Copyleft" content="Freeways 2015. No Rights Reserved.">
 
-
-<link rel="shortcut icon" href="_/img/favicon.ico">
-
-<link rel="stylesheet" href="_/css/reset.css">
-<link rel="stylesheet" href="_/css/style.css">
-<link rel="stylesheet" type="text/css" href="css/persona-buttons.css">
+<link rel="shortcut icon" href="resources/img/favicon.ico">
+<link rel="stylesheet" href="resources/css/reset.css">
+<link rel="stylesheet" href="resources/css/style.css">
 
 <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
-<script src="_/js/jquery.smooth-scroll.js"></script>
-<script src="_/js/jquery.easing.js"></script>
-<script src="_/js/jquery.tools.min.js"></script>
+<script src="resources/js/jquery.smooth-scroll.js"></script>
+<script src="resources/js/jquery.easing.js"></script>
+<script src="resources/js/jquery.tools.min.js"></script>
 
 <script language="javascript">
 
@@ -165,20 +87,18 @@ function checkcin(){
 	<div class="wrapper">
 
 		<div class="chrome">
-			<img src="_/img/chrome.png" title="testé avec Google Chrome 13">
+			<img src="resources/img/chrome.png" title="testé avec Google Chrome 13">
 		</div>
 
 		<div class="firefox">
-			<img src="_/img/firefox.png" title="testé avec Mozilla Firefox 40">
+			<img src="resources/img/firefox.png" title="testé avec Mozilla Firefox 40">
 		</div>
 
 		<div class="up">
-			<img src="_/img/up.png" title="Haut de la page">
+			<img src="resources/img/up.png" title="Haut de la page">
 		</div>
 
 		<div id="stat" align="right" style="margin-top: 5px;">
-
-
 
 			<r><?php    echo $donnees['visteurtot'];?></r>
 			Visites -
@@ -187,43 +107,19 @@ function checkcin(){
 			<r><?php    echo $donnees['demandes'];?></r>
 			Demandes
 
-			<div>
-				<form id="login-form" method="POST">
-					<input id="assertion-field" type="hidden" name="assertion" value="">
-				</form>
-      <?= $body?> 
-    <script src="https://login.persona.org/include.js"></script>
-				<script>
-    navigator.id.watch({
-        loggedInUser: <?= $email ? "'$email'" : 'null' ?>,
-        onlogin: function (assertion) {
-            var assertion_field = document.getElementById("assertion-field");
-            assertion_field.value = assertion;
-            var login_form = document.getElementById("login-form");
-            login_form.submit();
-        },
-        onlogout: function () {
-            window.location = '?logout=1';
-        }
-    });
-    </script>
-			</div>
 		</div>
-
-
 
 		<header id="header">
 			<center>
 				<div id="r">
-					<p>
-					
+					<p>	
 					
 					<h1 id="logo">#Permutation</h1>
 					</p>
 					<div id="slogan">Trouver un(e) camarade pour faire une permutation</div>
 				</div>
-				<img id="s1" src="_/img/stick.png">
-				<img id="s2" src="_/img/stick.png">
+				<img id="s1" src="resources/img/stick.png">
+				<img id="s2" src="resources/img/stick.png">
 				<center>
 		
 		</header>
@@ -452,7 +348,6 @@ function checkcin(){
 					</form>
 				</center>
 			</div>
-
 			<table name="result" id="result" cellspacing="10">
 				<tbody>
 					<tr class="th">
@@ -462,11 +357,11 @@ function checkcin(){
 						<th class="vers">Vers</th>
 						<th class="contact">Contact</th>
 					</tr>
-<?php
-$requete = "SELECT * from etudiant"; // requête
-sql ( $requete );
-?>
-</tbody>
+				<?php
+					$requete = "SELECT * from etudiant"; // requête
+					sql($requete);
+				?>
+				</tbody>
 			</table>
 	
 	</div>
@@ -517,11 +412,11 @@ sql ( $requete );
 		</table>
 
 		<center>
-			<a href="http://www.freewaysclub.org/" target="_tab">Freeways</a>
+			<a href="http://www.freeways.tn/" target="_tab">Freeways</a>
 			2015
 			<p>
 				<a href="http://creativecommons.org/">
-					<img src="http://www.freewaysclub.org/permut/_/img/icon_cc.gif">
+					<img src="resources/img/icon_cc.gif">
 				</a>
 				<a href="http://www.w3.org/">
 					<img src="http://www.w3.org/html/logo/downloads/HTML5_Logo_32.png">
@@ -533,7 +428,7 @@ sql ( $requete );
 
 	</div>
 
-	<script>
+<script>
 $(function() {
                 $('.chrome img, .firefox img').tooltip({
 		 
@@ -609,7 +504,7 @@ var vers = $('.recherche input[name="vers"]').val();
 
 
 $('#result tr:not(.th), #result td').remove();
-$('#result > tbody').append(' <td colspan="5"><center><img src="_/img/load.gif"></center></td>'); 
+$('#result > tbody').append(' <td colspan="5"><center><img src="resources/img/load.gif"></center></td>'); 
 
 $.ajax({
  type: "POST",
@@ -645,7 +540,7 @@ var vers = $('.insertion input[name="vers"]').val();
 var contact = $('.insertion input[name="contact"]').val();
 
 $('#result tr:not(.th), #result td').remove();
-$('#result  > tbody').append(' <td colspan="5"><center><img src="_/img/load.gif"></center></td>'); 
+$('#result  > tbody').append(' <td colspan="5"><center><img src="resources/img/load.gif"></center></td>'); 
 		
 $.ajax({
  type: "POST",
@@ -753,7 +648,7 @@ $.ajax({
 
  if (document.images) {
     img1 = new Image();
-    img1.src = "_/img/load.gif";
+    img1.src = "resources/img/load.gif";
 }
 
 </script>
